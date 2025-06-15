@@ -28,7 +28,7 @@ app.add_url_rule(
         graphiql=True  # Enable GraphiQL interface
     )
 )
-
+#
 @app.route('/')
 def index():
     return render_template('index.html')
