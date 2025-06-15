@@ -1,0 +1,4 @@
+flask==2.0.1
+flask-graphql==2.0.1
+graphene==2.1.8
+Werkzeug==2.0.3 
