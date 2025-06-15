@@ -1,0 +1,58 @@
+type Drug {
+  id: ID!
+  name: String!
+  description: String
+  price: Float!
+  stock: Int!
+  category: String
+  created_at: String
+  updated_at: String
+}
+
+type Query {
+  drugs(query: String, category: String): [Drug!]!
+  drugById(id: ID!): Drug
+}
+
+type Mutation {
+  createDrug(
+    name: String!
+    description: String
+    price: Float!
+    stock: Int!
+    category: String
+  ): Drug!
+  updateDrug(
+    id: ID!
+    name: String
+    description: String
+    price: Float
+    stock: Int
+    category: String
+  ): Boolean!
+  deleteDrug(id: ID!): Boolean!
+  processAddToCart(
+    drugId: Int!,
+    quantity: Int!,
+    userId: Int!
+  ): OrderProcessResult!
+}
+
+type OrderProcessResult {
+  success: Boolean!
+  message: String!
+  order: Order
+  drug: Drug
+  currentStock: Int
+}
+
+type Order {
+  id: ID!
+  userId: Int!
+  drugId: Int!
+  drugName: String!
+  quantity: Int!
+  totalPrice: Float!
+  status: String
+  orderDate: String!
+} 
