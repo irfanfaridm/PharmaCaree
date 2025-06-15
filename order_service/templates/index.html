@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orders - PharmaCare</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        .navbar {
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,.08);
+            padding: 15px 0;
+        }
+        .navbar-brand {
+            font-weight: bold;
+            color: #007bff !important;
+            font-size: 1.5rem;
+        }
+        .nav-link {
+            color: #495057 !important;
+            font-weight: 500;
+        }
+        .nav-link:hover {
+            color: #007bff !important;
+        }
+        .container {
+            margin-top: 20px;
+        }
+        .table-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,.1);
+        }
+        h1 {
+            color: #343a40;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm" style="padding: 15px 0;">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="http://localhost:5002" style="color:#007bff;font-size:1.5rem;">
+                <i class="fas fa-pills me-2"></i> PharmaCare
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="http://localhost:5005">Drug Service</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="http://localhost:5002">Order Service</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="http://localhost:5003">Payment Service</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="http://localhost:5004">Delivery Service</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="http://localhost:5006">Article Service</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user-circle me-1"></i> Haikal Rizkyan
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="#">Profile</a></li>
+                            <li><a class="dropdown-item" href="#">Settings</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#">Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1 class="text-center">Order List</h1>
+        <div class="table-container">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>User ID</th>
+                        <th>Drug ID</th>
+                        <th>Drug Name</th>
+                        <th>Quantity</th>
+                        <th>Total Price</th>
+                        <th>Order Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="orders-table-body">
+                    <!-- Orders will be loaded here -->
+                </tbody>
+            </table>
+            <p id="no-orders-message" class="text-center" style="display: none;">Tidak ada pesanan yang tersedia.</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const ordersTableBody = document.getElementById('orders-table-body');
+            const noOrdersMessage = document.getElementById('no-orders-message');
+
+            try {
+                const response = await fetch('/graphql', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        query: `
+                            query {
+                                allOrders {
+                                    id
+                                    userId
+                                    drugId
+                                    drugName
+                                    quantity
+                                    totalPrice
+                                    orderDate
+                                }
+                            }
+                        `
+                    }),
+                });
+
+                const result = await response.json();
+                console.log('Order Service GraphQL Response:', result);
+
+                if (result.data && result.data.allOrders && result.data.allOrders.length > 0) {
+                    result.data.allOrders.forEach(order => {
+                        const row = ordersTableBody.insertRow();
+                        row.insertCell().textContent = order.id;
+                        row.insertCell().textContent = order.userId;
+                        row.insertCell().textContent = order.drugId;
+                        row.insertCell().textContent = order.drugName;
+                        row.insertCell().textContent = order.quantity;
+                        row.insertCell().textContent = order.totalPrice;
+                        row.insertCell().textContent = new Date(order.orderDate).toLocaleString();
+                        const actionsCell = row.insertCell();
+                        const paymentButton = document.createElement('button');
+                        paymentButton.textContent = 'Lanjut Pembayaran';
+                        paymentButton.classList.add('btn', 'btn-primary', 'btn-sm', 'me-2');
+                        paymentButton.onclick = () => lanjutPembayaran(order);
+                        actionsCell.appendChild(paymentButton);
+
+                        const trackButton = document.createElement('button');
+                        trackButton.textContent = 'Tracking';
+                        trackButton.classList.add('btn', 'btn-info', 'btn-sm');
+                        trackButton.onclick = () => trackOrder(order.id);
+                        actionsCell.appendChild(trackButton);
+                    });
+                } else {
+                    noOrdersMessage.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error fetching orders:', error);
+                noOrdersMessage.textContent = 'Gagal memuat pesanan. Terjadi kesalahan.';
+                noOrdersMessage.style.display = 'block';
+            }
+        });
+
+        function lanjutPembayaran(order) {
+            fetch('http://localhost:5003/graphql', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    query: `
+                        mutation {
+                            createPayment(
+                                customer: ${order.userId},
+                                amount: ${order.totalPrice},
+                                status: "pending",
+                                date: "${new Date(order.orderDate).toISOString()}"
+                            ) {
+                                payment {
+                                    id
+                                    customer
+                                    amount
+                                    status
+                                    date
+                                }
+                            }
+                        }
+                    `
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                alert('Order berhasil masuk ke Payment Service! Silakan lakukan pembayaran di Payment Service.');
+                window.location.href = 'http://localhost:5003';
+            })
+            .catch(err => {
+                alert('Gagal membuat pembayaran!');
+                console.error(err);
+            });
+        }
+
+        async function trackOrder(orderId) {
+            try {
+                const response = await fetch('/graphql', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        query: `
+                            mutation {
+                                trackOrderAndCreateDelivery(orderId: ${orderId})
+                            }
+                        `
+                    }),
+                });
+
+                const result = await response.json();
+                console.log('Tracking Order Response:', result);
+
+                if (result.data && result.data.trackOrderAndCreateDelivery) {
+                    alert(result.data.trackOrderAndCreateDelivery);
+                } else if (result.errors) {
+                    alert('Error tracking order: ' + result.errors.map(e => e.message).join(', '));
+                } else {
+                    alert('Unknown response when tracking order.');
+                }
+            } catch (error) {
+                console.error('Error tracking order:', error);
+                alert('Failed to connect to order service for tracking.');
+            }
+        }
+    </script>
+</body>
+</html> 

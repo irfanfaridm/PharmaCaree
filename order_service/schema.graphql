@@ -1,0 +1,24 @@
+type Order {
+  id: ID!
+  user_id: Int!
+  drug_id: Int!
+  drugName: String!
+  quantity: Int!
+  total_price: Float!
+  order_date: String!
+}
+
+type Query {
+  allOrders: [Order!]!
+  order(id: ID!): Order
+}
+
+type Mutation {
+  createOrder(
+    userId: Int!,
+    drugId: Int!,
+    drugName: String!,
+    quantity: Int!,
+    totalPrice: Float!
+  ): Order!
+} 
