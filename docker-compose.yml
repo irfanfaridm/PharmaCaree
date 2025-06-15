@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  drug-service:
+    build: ./drug_service
+    ports:
+      - "5005:5005"
+    volumes:
+      - drug_data:/app/instance
+    networks:
+      - apotek-network
+
+  order-service:
+    build: ./order_service
+    ports:
+      - "5002:5002"
+    volumes:
+      - order_data:/app/instance
+    networks:
+      - apotek-network
+
+  payment-service:
+    build: ./Payment_service
+    ports:
+      - "5003:5003"
+    volumes:
+      - payment_data:/app/instance
+    networks:
+      - apotek-network
+
+  delivery-service:
+    build: ./deliveryservice
+    ports:
+      - "5004:5004"
+    networks:
+      - apotek-network
+
+  article-service:
+    build: ./Article Service
+    ports:
+      - "5006:5006"
+    volumes:
+      - article_data:/app/instance
+    networks:
+      - apotek-network
+
+volumes:
+  drug_data:
+  order_data:
+  payment_data:
+  article_data:
+
+networks:
+  apotek-network:
+    driver: bridge 
